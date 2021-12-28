@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: mongo
+    restart: unless-stopped
+    volumes:
+      - mongodbdata:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - 5000:5000
+    volumes:
+      - ./backend:/backend
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+    
+  frontend:
+    build: ./frontend
+    stdin_open: true
+    tty: true
+    ports:
+      - 3000:3000
+    volumes: 
+      - ./frontend:/frontend
+    depends_on:
+      - backend
+    networks:
+      - frontend
+
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    
+
+volumes:
+  mongodbdata:
+    driver: local
+  backend:
+    driver: local
+  frontend:
+    driver: local
